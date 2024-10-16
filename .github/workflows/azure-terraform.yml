@@ -34,15 +34,7 @@ jobs:
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v1
-
-    # Initialize Terraform Working Directory
-    - name: Terraform Init
-      run: terraform init
-
-    # Pre-deployment checks: Terraform validation and plan
-    - name: Terraform Validate
-      run: terraform validate
-
+      
     # Set environment variable based on branch
     - name: Set environment variable based on branch
       run: |
@@ -54,9 +46,28 @@ jobs:
           echo "ENVIRONMENT=default" >> $GITHUB_ENV
         fi
 
+    # Initialize Terraform Working Directory
+    - name: Terraform Init
+      run: |
+        terraform init -input=false -upgrade \
+          -backend-config="storage_account_name=tsblobstore11${{ env.ENVIRONMENT }}" \
+          -backend-config="container_name=terraform-state" \
+          -backend-config="key=Site2Site_VM_${{ env.ENVIRONMENT }}.tfstate" \
+          -backend-config="resource_group_name=Site2Site_rg_${{ env.ENVIRONMENT }}" \
+          -backend-config="use_oidc=true" \
+          -backend-config="client_id=${{ secrets.AZURE_CLIENT_ID }}" \
+          -backend-config="tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
+          -backend-config="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
+          -reconfigure \
+          -no-color
+
+    # Pre-deployment checks: Terraform validation and plan
+    - name: Terraform Validate
+      run: terraform validate
+
     # Terraform Plan with environment passed and save plan output
     - name: Terraform Plan
-      run: terraform plan -var="environment=${{ env.ENVIRONMENT }}" -var="azure_subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" -var="azure_client_id=${{ secrets.AZURE_CLIENT_ID }}" -var="azure_tenant_id=${{ secrets.AZURE_TENANT_ID }}" -out=tfplan
+      run: terraform plan -var="environment=${{ env.ENVIRONMENT }}" -var="azure_subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" -var="azure_client_id=${{ secrets.AZURE_CLIENT_ID }}" -var="azure_tenant_id=${{ secrets.AZURE_TENANT_ID }}" -var="admin_password=${{ secrets.ADMIN_PASSWORD }}" -out=tfplan
 
     # Display the Terraform Plan output in the logs
     - name: Show Terraform Plan
@@ -95,11 +106,10 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    # Initialize Terraform Working Directory
-    - name: Terraform Init
-      run: terraform init
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v1
 
-    # Set environment variable based on branch
+      # Set environment variable based on branch
     - name: Set environment variable based on branch
       run: |
         if [[ "${{ github.ref }}" == "refs/heads/development" ]]; then
@@ -110,9 +120,24 @@ jobs:
           echo "ENVIRONMENT=default" >> $GITHUB_ENV
         fi
 
+    # Initialize Terraform Working Directory
+    - name: Terraform Init
+      run: |
+        terraform init -input=false -upgrade \
+          -backend-config="storage_account_name=tsblobstore11${{ env.ENVIRONMENT }}" \
+          -backend-config="container_name=terraform-state" \
+          -backend-config="key=Site2Site_VM_${{ env.ENVIRONMENT }}.tfstate" \
+          -backend-config="resource_group_name=Site2Site_rg_${{ env.ENVIRONMENT }}" \
+          -backend-config="use_oidc=true" \
+          -backend-config="client_id=${{ secrets.AZURE_CLIENT_ID }}" \
+          -backend-config="tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
+          -backend-config="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
+          -reconfigure \
+          -no-color
+
     # Re-run Terraform plan before applying
     - name: Terraform Plan (Re-run)
-      run: terraform plan -var="environment=${{ env.ENVIRONMENT }}" -var="azure_subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" -var="azure_client_id=${{ secrets.AZURE_CLIENT_ID }}" -var="azure_tenant_id=${{ secrets.AZURE_TENANT_ID }}" -out=tfplan
+      run: terraform plan -var="environment=${{ env.ENVIRONMENT }}" -var="azure_subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" -var="azure_client_id=${{ secrets.AZURE_CLIENT_ID }}" -var="azure_tenant_id=${{ secrets.AZURE_TENANT_ID }}" -var="admin_password=${{ secrets.ADMIN_PASSWORD }}" -out=tfplan
 
     # Display the Terraform Plan output in the logs before apply
     - name: Show Terraform Plan (Re-run)
@@ -137,4 +162,4 @@ jobs:
 
     # Destroy resources to avoid unnecessary costs
     - name: Terraform Destroy
-      run: terraform destroy -auto-approve -var="environment=${{ env.ENVIRONMENT }}" -var="azure_subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" -var="azure_client_id=${{ secrets.AZURE_CLIENT_ID }}" -var="azure_tenant_id=${{ secrets.AZURE_TENANT_ID }}"
+      run: terraform destroy -auto-approve -var="environment=${{ env.ENVIRONMENT }}" -var="azure_subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" -var="azure_client_id=${{ secrets.AZURE_CLIENT_ID }}" -var="azure_tenant_id=${{ secrets.AZURE_TENANT_ID }}" -var="admin_password=${{ secrets.ADMIN_PASSWORD }}"
