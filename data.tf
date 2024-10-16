@@ -5,6 +5,10 @@ data "terraform_remote_state" "vnet" {
         container_name       = "terraform-state"
         key                  = "Site2Site_VPC_${var.environment}"
         resource_group_name  = "Site2Site_rg_${var.environment}"
+        use_oidc               = true
+        client_id              = var.azure_client_id
+        tenant_id              = var.azure_tenant_id
+        subscription_id        = var.azure_subscription_id
     }
 }
 
