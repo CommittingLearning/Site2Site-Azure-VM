@@ -7,7 +7,7 @@ resource "azurerm_network_interface" "vm_nic" {
     # IP Address configuraiton for the VM Nic
     ip_configuration {
         name                          = "internal"
-        subnet_id                     = data.terraform_remote_state.vnet.outputs.subnetVM.id
+        subnet_id                     = data.azurerm_subnet.vm_subnet.id
         private_ip_address_allocation = "Dynamic"
     }
 }
