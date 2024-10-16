@@ -60,6 +60,8 @@ jobs:
           -backend-config="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
           -reconfigure \
           -no-color
+      if: env.ENVIRONMENT == 'default'
+      continue-on-error: true
 
     # Pre-deployment checks: Terraform validation and plan
     - name: Terraform Validate
