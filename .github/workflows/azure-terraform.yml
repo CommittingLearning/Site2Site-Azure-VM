@@ -48,8 +48,6 @@ jobs:
 
     # Initialize Terraform Working Directory
     - name: Terraform Init
-      if: env.ENVIRONMENT == 'default'
-      continue-on-error: true
       run: |
         terraform init -input=false -upgrade \
           -backend-config="storage_account_name=tsblobstore11${{ env.ENVIRONMENT }}" \
