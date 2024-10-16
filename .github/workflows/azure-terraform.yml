@@ -48,6 +48,8 @@ jobs:
 
     # Initialize Terraform Working Directory
     - name: Terraform Init
+      if: env.ENVIRONMENT == 'default'
+      continue-on-error: true
       run: |
         terraform init -input=false -upgrade \
           -backend-config="storage_account_name=tsblobstore11${{ env.ENVIRONMENT }}" \
@@ -60,8 +62,6 @@ jobs:
           -backend-config="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
           -reconfigure \
           -no-color
-      if: env.ENVIRONMENT == 'default'
-      continue-on-error: true
 
     # Pre-deployment checks: Terraform validation and plan
     - name: Terraform Validate
