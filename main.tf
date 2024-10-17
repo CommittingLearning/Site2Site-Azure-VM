@@ -1,8 +1,8 @@
 # Provisioning network interface for the VM
 resource "azurerm_network_interface" "vm_nic" {
-    name                      = "vmnic-${var.environment}"
-    location                  = var.location
-    resource_group_name       = "${var.rg_name}_${var.environment}"
+    name                = "vmnic-${var.environment}"
+    location            = var.location
+    resource_group_name = "${var.rg_name}_${var.environment}"
 
     # IP Address configuraiton for the VM Nic
     ip_configuration {
