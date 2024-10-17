@@ -158,7 +158,7 @@ jobs:
 
     # Wait for 1 hour and destroy resources
     - name: Wait for demonstration period
-      run: sleep 300
+      run: sleep 900
 
     # Destroy resources to avoid unnecessary costs
     - name: Terraform Destroy
