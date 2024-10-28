@@ -2,7 +2,7 @@
 resource "azurerm_network_interface" "vm_nic" {
     name                = "vmnic-${var.environment}"
     location            = var.location
-    resource_group_name = "${var.rg_name}_${var.environment}"
+    resource_group_name = format("%s_%s", var.rg_name, var.environment)
 
     # IP Address configuraiton for the VM Nic
     ip_configuration {
@@ -15,7 +15,7 @@ resource "azurerm_network_interface" "vm_nic" {
 resource "azurerm_windows_virtual_machine" "vm" {
     name                  = "vm-${var.environment}"
     location              = var.location
-    resource_group_name   = "${var.rg_name}_${var.environment}"
+    resource_group_name   = format("%s_%s", var.rg_name, var.environment)
     network_interface_ids = [azurerm_network_interface.vm_nic.id]
     size                  = var.VMsize
     
@@ -38,4 +38,25 @@ resource "azurerm_windows_virtual_machine" "vm" {
     tags = {
         environment = var.environment
     }
+}
+
+# Create a Route Rable
+resource "azurerm_route_table" "Vnetroute" {
+    name                = format("%s_%s", var.rt, var.environment)
+    location            = var.location
+    resource_group_name = format("%s_%s", var.rg_name, var.environment)
+
+    route {
+        name           = "privatetogate"
+        address_prefix = "0.0.0.0/0"
+        next_hop_type  = "VirtualNetworkGateway"
+    }
+
+    # Enable BGP Route Propogation
+    bgp_route_propagation_enabled = true
+}
+
+resource "azurerm_subnet_route_table_association" "VMtoGate" {
+    subnet_id      = data.azurerm_subnet.vm_subnet.id
+    route_table_id = azurerm_route_table.Vnetroute.id
 }

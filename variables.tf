@@ -43,3 +43,9 @@ variable "admin_password" {
     description = "method to authenticate user to the machine"
     sensitive   = true
 }
+
+variable "rt" {
+    description = "Name of the route table to be associated with the vm subnet"
+    type        = string
+    default     = "VMtoGate"
+}
