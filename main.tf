@@ -46,12 +46,6 @@ resource "azurerm_route_table" "Vnetroute" {
     location            = var.location
     resource_group_name = format("%s_%s", var.rg_name, var.environment)
 
-    route {
-        name           = "privatetogate"
-        address_prefix = "0.0.0.0/0"
-        next_hop_type  = "VirtualNetworkGateway"
-    }
-
     # Enable BGP Route Propogation
     bgp_route_propagation_enabled = true
 }
