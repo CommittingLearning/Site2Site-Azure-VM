@@ -46,7 +46,7 @@ resource "azurerm_network_security_group" "vm_nsg" {
     resource_group_name = format("%s_%s", var.rg_name, var.environment)
 
     security_rule {
-        name                       = "AllowICMPFromAWS"
+        name                       = "AllowICMPInbound"
         priority                   = 1000
         direction                  = "Inbound"
         access                     = "Allow"
@@ -55,6 +55,18 @@ resource "azurerm_network_security_group" "vm_nsg" {
         destination_port_range     = "*"
         source_address_prefix      = var.aws_vpc_cidr
         destination_address_prefix = "*"
+    }
+
+    security_rule {
+        name                       = "AllowICMPOutbound"
+        priority                   = 1000
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "Icmp"
+        source_port_range          = "*"
+        destination_port_range     = "*"
+        source_address_prefix      = "*"
+        destination_address_prefix = var.aws_vpc_cidr
     }
 }
 
