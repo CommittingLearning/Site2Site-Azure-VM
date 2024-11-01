@@ -49,3 +49,15 @@ variable "rt" {
     type        = string
     default     = "VMtoGate"
 }
+
+variable "nsg" {
+    description = "Name of the NSG to be attached to the VM"
+    type        = string
+    default     = "s2sVMnsg"
+}
+
+variable "aws_vpc_cidr" {
+    description = "CIDR range of AWS VPC"
+    type        = string
+    default     = "192.168.0.0/16"
+}

@@ -40,17 +40,25 @@ resource "azurerm_windows_virtual_machine" "vm" {
     }
 }
 
-# Create a Route Rable
-resource "azurerm_route_table" "Vnetroute" {
-    name                = format("%s_%s", var.rt, var.environment)
+resource "azurerm_network_security_group" "vm_nsg" {
+    name                = format("%s_%s", var.nsg, var.environment)
     location            = var.location
     resource_group_name = format("%s_%s", var.rg_name, var.environment)
 
-    # Enable BGP Route Propogation
-    bgp_route_propagation_enabled = true
+    security_rule {
+        name                       = "AllowICMPFromAWS"
+        priority                   = 1000
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "Icmp"
+        source_port_range          = "*"
+        destination_port_range     = "*"
+        source_address_prefix      = var.aws_vpc_cidr
+        destination_address_prefix = "*"
+    }
 }
 
-resource "azurerm_subnet_route_table_association" "VMtoGate" {
-    subnet_id      = data.azurerm_subnet.vm_subnet.id
-    route_table_id = azurerm_route_table.Vnetroute.id
+resource "azurerm_network_interface_security_group_association" "vm_nic_nsg_assoc" {
+    network_interface_id      = azurerm_network_interface.vm_nic.id
+    network_security_group_id = azurerm_network_security_group.vm_nsg.id
 }
