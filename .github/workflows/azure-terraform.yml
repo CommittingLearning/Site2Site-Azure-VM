@@ -61,7 +61,7 @@ jobs:
           -reconfigure \
           -no-color
 
-    # Pre-deployment checks: Terraform validation and plan
+    # Pre-deployment checks: Terraform validation
     - name: Terraform Validate
       run: terraform validate
 
@@ -156,7 +156,7 @@ jobs:
     - name: Terraform Apply
       run: terraform apply -auto-approve "tfplan"
 
-    # Wait for 1 hour and destroy resources
+    # Wait for demonstrated time
     - name: Wait for demonstration period
       run: sleep 900
 

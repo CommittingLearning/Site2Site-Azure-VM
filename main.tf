@@ -10,8 +10,13 @@ resource "azurerm_network_interface" "vm_nic" {
         subnet_id                     = data.azurerm_subnet.vm_subnet.id
         private_ip_address_allocation = "Dynamic"
     }
+
+    tags = {
+        environment = var.environment
+    }
 }
 
+# Provisioning a windows 10 pro VM
 resource "azurerm_windows_virtual_machine" "vm" {
     name                  = "vm-${var.environment}"
     location              = var.location
@@ -40,11 +45,13 @@ resource "azurerm_windows_virtual_machine" "vm" {
     }
 }
 
+# Creating an NSG for the VM
 resource "azurerm_network_security_group" "vm_nsg" {
     name                = format("%s_%s", var.nsg, var.environment)
     location            = var.location
     resource_group_name = format("%s_%s", var.rg_name, var.environment)
 
+    # Security Rule to allow inbound ICMP traffic from the AWS VPC
     security_rule {
         name                       = "AllowICMPInbound"
         priority                   = 1000
@@ -57,6 +64,7 @@ resource "azurerm_network_security_group" "vm_nsg" {
         destination_address_prefix = "*"
     }
 
+    # Security Rule to allow outbound ICMP traffic to the AWS VPC
     security_rule {
         name                       = "AllowICMPOutbound"
         priority                   = 1000
@@ -70,6 +78,7 @@ resource "azurerm_network_security_group" "vm_nsg" {
     }
 }
 
+# Associating the NSG to the VM's network interface
 resource "azurerm_network_interface_security_group_association" "vm_nic_nsg_assoc" {
     network_interface_id      = azurerm_network_interface.vm_nic.id
     network_security_group_id = azurerm_network_security_group.vm_nsg.id
